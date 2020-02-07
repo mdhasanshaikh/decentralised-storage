@@ -15,6 +15,9 @@ import ReactEncrypt from "react-encrypt";
 var crypto = require("crypto");
 var fs = require("fs");
 var CryptoJS = require("crypto-js");
+const fetch = require("node-fetch");
+const axios = require("axios");
+const FileDownload = require("js-file-download");
 
 class App extends Component {
   constructor(props) {
@@ -191,7 +194,7 @@ class App extends Component {
       console.log(file);
       const { contract, accounts } = this.state;
       await this.encryption(file);
-      setTimeout(async() => {
+      setTimeout(async () => {
         console.log(scope.state.encryptFile);
         const encryptFile = scope.state.encryptFile;
         const fileExt = encryptFile.name.split(".");
@@ -205,7 +208,7 @@ class App extends Component {
         console.log(result);
         const timestamp = Math.round(+new Date() / 1000);
         const type = file.name.substr(file.name.lastIndexOf(".") + 1);
-        let uploaded = await contract.methods
+        let uploaded = contract.methods
           .add(result[0].hash, file.name, type, timestamp)
           .send({ from: accounts[0], gas: 300000 });
         console.log(uploaded);
@@ -236,6 +239,89 @@ class App extends Component {
     }
   };
 
+  deriveDecryptionSecretKey = async salt => {
+    let cryptoParams = this.state.cryptoParams;
+    let getSecretKey = await this.importSecretKey();
+
+    return window.crypto.subtle.deriveKey(
+      {
+        name: cryptoParams.algoName1,
+        salt: new Uint8Array(salt),
+        iterations: cryptoParams.itr,
+        hash: {
+          name: cryptoParams.hash
+        }
+      },
+      getSecretKey,
+      { name: cryptoParams.algoName2, length: cryptoParams.algoLength },
+      false,
+      cryptoParams.perms2
+    );
+  };
+
+  decryption = file => {
+    const scope = this;
+    const cryptoParams = this.state.cryptoParams;
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      const derivedKey = await this.deriveDecryptionSecretKey(
+        new Uint8Array(reader.result.slice(16, 32))
+      );
+      const iv = new Uint8Array(reader.result.slice(0, 16));
+      const content = new Uint8Array(reader.result.slice(32));
+
+      await window.crypto.subtle
+        .decrypt(
+          {
+            iv,
+            name: cryptoParams.algoName2
+          },
+          derivedKey,
+          content
+        )
+        .then(function(decrypted) {
+          const decryptFile = {
+            name: file.name,
+            data: decrypted
+          };
+          scope.handleFileDownload(decryptFile);
+        })
+        .catch(function() {
+          alert("Wrong password\nPlease enter correct password");
+        });
+    };
+
+    reader.readAsArrayBuffer(file.data);
+  };
+
+  handleFileDownload = async file => {
+    const temp = file.name.split(".");
+
+    const blob = await new Blob([file.data], {
+      type: mimeTypes.contentType(temp[temp.length - 1])
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    var element = document.createElement("a");
+    element.setAttribute("href", url);
+
+    element.setAttribute("download", file.name);
+    element.style.display = "none";
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+
+    this.setState({
+      isFileDowloaded: true
+    });
+  };
+
+  handleOnFileClick = () => {};
+
   //UI of the app
   render() {
     const { solidityDrive } = this.state;
@@ -259,7 +345,32 @@ class App extends Component {
             <tbody>
               {solidityDrive !== []
                 ? solidityDrive.map((item, key) => (
-                    <tr>
+                    <tr
+                      onClick={() => {
+                        const scope = this;
+                        var config = {
+                          headers: {
+                            "Content-Type": "application/octet-stream"
+                          },
+                          responseType: "blob"
+                        };
+                        axios
+                          .get(
+                            "http://localhost:8080/ipfs/" + String(item[0]),
+                            config
+                          )
+                          .then(response => {
+                            const file = {
+                              name: item[1],
+                              data: response.data
+                            };
+
+                            scope.decryption(file);
+                            // console.log(response.data);
+                            // FileDownload(response.data, item[1]);
+                          });
+                      }}
+                    >
                       <th>
                         <FileIcon
                           size={30}
@@ -267,11 +378,7 @@ class App extends Component {
                           {...defaultStyles[item[2]]}
                         />
                       </th>
-                      <th className="text-left">
-                        <a href={"http://localhost:8080/ipfs/" + item[0]}>
-                          {item[1]}
-                        </a>
-                      </th>
+                      <th className="text-left">{item[1]}</th>
                       <th className="text-right">
                         <Moment format="YYYY/MM/DD" unix>
                           {item[3]}
