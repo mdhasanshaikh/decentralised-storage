@@ -10,13 +10,120 @@ import fileReaderPullStream from "pull-file-reader";
 import ipfs from "./utils/ipfs";
 import Moment from "react-moment";
 import "./App.css";
+import mimeTypes from "mime-types";
 import ReactEncrypt from "react-encrypt";
 var crypto = require("crypto");
 var fs = require("fs");
 var CryptoJS = require("crypto-js");
 
 class App extends Component {
-  state = { solidityDrive: [], web3: null, accounts: null, contract: null };
+  constructor(props) {
+    super(props);
+    this.state = {
+      solidityDrive: [],
+      web3: null,
+      accounts: null,
+      contract: null,
+      encryptFile: {},
+      //initialiaing parameter
+      cryptoParams: {
+        hash: "SHA-512",
+        algoName1: "PBKDF2",
+        algoName2: "AES-GCM",
+        algoLength: 256,
+        itr: 80000,
+        salt: window.crypto.getRandomValues(new Uint8Array(16)),
+        perms1: ["deriveKey"],
+        perms2: ["encrypt", "decrypt"]
+      }
+    };
+  }
+
+  str2ab = str => {
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
+
+    for (let index = 0, strLen = str.length; index < strLen; index++) {
+      bufView[index] = str.charCodeAt(index);
+    }
+
+    return buf;
+  };
+
+  importSecretKey = async () => {
+    let cryptoParams = this.state.cryptoParams;
+    let rawPswrd;
+
+    rawPswrd = this.str2ab(this.state.accounts[0]);
+
+    return window.crypto.subtle.importKey(
+      "raw",
+      rawPswrd,
+      {
+        name: cryptoParams.algoName1
+      },
+      false,
+      cryptoParams.perms1
+    );
+  };
+
+  deriveEncryptionSecretKey = async () => {
+    let cryptoParams = this.state.cryptoParams;
+    let getSecretKey = await this.importSecretKey();
+
+    return window.crypto.subtle.deriveKey(
+      {
+        name: cryptoParams.algoName1,
+        salt: cryptoParams.salt,
+        iterations: cryptoParams.itr,
+        hash: {
+          name: cryptoParams.hash
+        }
+      },
+      getSecretKey,
+      { name: cryptoParams.algoName2, length: cryptoParams.algoLength },
+      false,
+      cryptoParams.perms2
+    );
+  };
+
+  encryption = async file => {
+    const cryptoParams = this.state.cryptoParams;
+    const scope = this;
+    const derivedKey = await this.deriveEncryptionSecretKey();
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      const iv = window.crypto.getRandomValues(new Uint8Array(16));
+      const content = new Uint8Array(reader.result);
+
+      await window.crypto.subtle
+        .encrypt(
+          {
+            iv,
+            name: "AES-GCM"
+          },
+          derivedKey,
+          content
+        )
+        .then(function(encrypted) {
+          let encryptData = [iv, cryptoParams.salt, new Uint8Array(encrypted)];
+          scope.setState({
+            encryptFile: {
+              name: "Encrypted-" + file.name,
+              data: encryptData
+            }
+          });
+
+          // console.log(scope.state.encryptFile);
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
 
   componentDidMount = async () => {
     try {
@@ -72,6 +179,8 @@ class App extends Component {
 
   //Function to store files in the ipfs
   onDrop = async file => {
+    var result = "";
+    const scope = this;
     try {
       var handleReceipt = (error, receipt) => {
         if (error) console.error(error);
@@ -79,12 +188,32 @@ class App extends Component {
           console.log(receipt);
         }
       };
+      console.log(file);
       const { contract, accounts } = this.state;
-      const stream = fileReaderPullStream(file);
-      console.log(typeof stream);
-      const result = await ipfs.add(stream);
-      console.log("File type ");
-      console.log(typeof result);
+      await this.encryption(file);
+      setTimeout(async() => {
+        console.log(scope.state.encryptFile);
+        const encryptFile = scope.state.encryptFile;
+        const fileExt = encryptFile.name.split(".");
+        const blob = new Blob(encryptFile.data, {
+          type: mimeTypes.contentType(fileExt[fileExt.length - 1])
+        });
+        const uploadFile = new File([blob], file.name);
+        const streamData = new fileReaderPullStream(uploadFile);
+        result = await ipfs.add(streamData);
+        console.log("Result value ");
+        console.log(result);
+        const timestamp = Math.round(+new Date() / 1000);
+        const type = file.name.substr(file.name.lastIndexOf(".") + 1);
+        let uploaded = await contract.methods
+          .add(result[0].hash, file.name, type, timestamp)
+          .send({ from: accounts[0], gas: 300000 });
+        console.log(uploaded);
+        console.log(this.state.web3);
+      }, 10);
+
+      // const stream = fileReaderPullStream(this.state.encryptFile);
+      // console.log(typeof stream);
 
       const timestamp = Math.round(+new Date() / 1000);
       const type = file.name.substr(file.name.lastIndexOf(".") + 1);
@@ -106,6 +235,7 @@ class App extends Component {
       console.log(error);
     }
   };
+
   //UI of the app
   render() {
     const { solidityDrive } = this.state;
