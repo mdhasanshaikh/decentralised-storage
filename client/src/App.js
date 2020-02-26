@@ -149,7 +149,12 @@ class App extends Component {
       this.setState({ web3, accounts, contract: instance }, this.getFiles);
       web3.currentProvider.publicConfigStore.on("update", async () => {
         const changedAccounts = await web3.eth.getAccounts();
+
         this.setState({ accounts: changedAccounts });
+        console.log(this.state.accounts[0]);
+
+        const { accounts, contract } = this.state;
+
         this.getFiles();
       });
     } catch (error) {
@@ -164,6 +169,7 @@ class App extends Component {
   getFiles = async () => {
     try {
       const { accounts, contract } = this.state;
+
       let filesLength = await contract.methods
         .getLength()
         .call({ from: accounts[0] });
@@ -213,6 +219,17 @@ class App extends Component {
           .send({ from: accounts[0], gas: 300000 });
         console.log(uploaded);
         console.log(this.state.web3);
+
+        //Here we will be getting account address of available peers online
+        let depositAmount = contract.methods
+          .depositsFund([
+            "0xE028aBA988CB3f65c752BC2703458F073d7E164B",
+            "0x0830d1517A6BB9AeAEdD222b00Ef5aB2E68d124C"
+          ])
+          .send({
+            from: accounts[0],
+            value: this.state.web3.utils.toWei("0.05", "ether")
+          });
       }, 10);
 
       // const stream = fileReaderPullStream(this.state.encryptFile);
@@ -229,7 +246,7 @@ class App extends Component {
         {
           from: accounts[0],
           to: "0xa98996860DfBc4DdB5b46A74ac4d07eA7a82d3A4",
-          value: this.state.web3.utils.toWei("1", "ether")
+          value: this.state.web3.utils.toWei("0.05", "ether")
         },
         handleReceipt
       );
@@ -293,6 +310,15 @@ class App extends Component {
     };
 
     reader.readAsArrayBuffer(file.data);
+  };
+
+  getFund = () => {
+    const { accounts, contract } = this.state;
+    setTimeout(() => {
+      let getFund = contract.methods
+        .withdraw(accounts[0])
+        .send({ from: accounts[0], gas: 300000 });
+    }, 1);
   };
 
   handleFileDownload = async file => {
@@ -389,9 +415,14 @@ class App extends Component {
                 : null}
             </tbody>
           </Table>
+
+          <button onClick={this.getFund}>Get Funds</button>
         </div>
       </div>
-    );
+    
+   
+                      
+   );
   }
 }
 

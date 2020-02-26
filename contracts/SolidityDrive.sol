@@ -23,10 +23,21 @@ contract SolidityDrive {
         return files[msg.sender].length;
     }
 
-    function pay(address payable[]  memory payees, uint[] memory values) public payable{
-        for(uint i = 0; i < payees.length; i++){
-            payees[i].transfer(values[i]);
+    mapping(address => uint256) public deposits;
+
+    function depositsFund(address[] memory payee) public payable {
+        uint256 amount = msg.value;
+        
+        for(uint i=0;i<payee.length;i++)
+        {
+        deposits[payee[i]] = deposits[payee[i]] + (amount)/payee.length;
         }
+    }
+    
+    function withdraw(address payable payee) public {
+        uint256 payment = deposits[payee];
+        deposits[payee] = 0;
+        payee.transfer(payment);
     }
 
     function checkBalance() public view returns(uint)
