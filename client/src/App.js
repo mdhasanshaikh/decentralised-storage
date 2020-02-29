@@ -1,46 +1,124 @@
+//import default
+import "./App.css";
 import React, { Component } from "react";
+
+//import components
+import Sidebar from "./side-bar/sidebar";
+import FileSection from "./content-section/file-section/file-section";
+import TransactionSection from "./content-section/transaction-section/transaction-section";
+import FeedbackSection from "./content-section/feedback-section/feedback-section";
+import Popup from "./reusable-components/popup/popup";
+
+//import packages
 import SolidityDriveContract from "./contracts/SolidityDrive.json";
 import getWeb3 from "./utils/getWeb3";
-import { StyledDropZone } from "react-drop-zone";
-import FileIcon, { defaultStyles } from "react-file-icon";
-import "react-drop-zone/dist/styles.css";
-import "bootstrap/dist/css/bootstrap.css";
-import { Table } from "reactstrap";
 import fileReaderPullStream from "pull-file-reader";
 import ipfs from "./utils/ipfs";
-import Moment from "react-moment";
-import "./App.css";
 import mimeTypes from "mime-types";
-import ReactEncrypt from "react-encrypt";
-var crypto = require("crypto");
-var fs = require("fs");
-var CryptoJS = require("crypto-js");
-const fetch = require("node-fetch");
-const axios = require("axios");
-const FileDownload = require("js-file-download");
+import Moment from "react-moment";
+import fetch from "node-fetch";
+import axios from "axios";
+
+//import asserts
+import fileIconOutline from "./asserts/side-bar/file-icon-outline.png";
+import fileIconFilled from "./asserts/side-bar/file-icon-filled.png";
+import walletIconOutline from "./asserts/side-bar/wallet-icon-outline.png";
+import walletIconFilled from "./asserts/side-bar/wallet-icon-filled.png";
+import feedbackIconOutline from "./asserts/side-bar/feedback-icon-outline.png";
+import feedbackIconFilled from "./asserts/side-bar/feedback-icon-filled.png";
+
+// var crypto = require("crypto");
+// var fs = require("fs");
+// var CryptoJS = require("crypto-js");
+// const FileDownload = require("js-file-download");
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      solidityDrive: [],
-      web3: null,
-      accounts: null,
-      contract: null,
-      encryptFile: {},
-      //initialiaing parameter
-      cryptoParams: {
-        hash: "SHA-512",
-        algoName1: "PBKDF2",
-        algoName2: "AES-GCM",
-        algoLength: 256,
-        itr: 80000,
-        salt: window.crypto.getRandomValues(new Uint8Array(16)),
-        perms1: ["deriveKey"],
-        perms2: ["encrypt", "decrypt"]
+  state = {
+    solidityDrive: [],
+    web3: null,
+    accounts: null,
+    contract: null,
+    encryptFile: {},
+    //initialiaing parameter
+    cryptoParams: {
+      hash: "SHA-512",
+      algoName1: "PBKDF2",
+      algoName2: "AES-GCM",
+      algoLength: 256,
+      itr: 80000,
+      salt: window.crypto.getRandomValues(new Uint8Array(16)),
+      perms1: ["deriveKey"],
+      perms2: ["encrypt", "decrypt"]
+    },
+
+    //navigation components params
+    tabBtn: [
+      {
+        id: 1,
+        name: "file",
+        active: true,
+        imgSrc: [fileIconFilled, fileIconOutline]
+      },
+      {
+        id: 2,
+        name: "wallet",
+        active: false,
+        imgSrc: [walletIconFilled, walletIconOutline]
+      },
+      {
+        id: 3,
+        name: "feedback",
+        active: false,
+        imgSrc: [feedbackIconFilled, feedbackIconOutline]
       }
-    };
-  }
+    ],
+
+    //acc components params
+    dropdownMenu: {
+      id: 1,
+      name: "account",
+      dropdownActive: false,
+      selectedAcc: {
+        id: 1,
+        value: "0x0591c3661c044427fBA199124cBEB745116432D8",
+        balance: 23.5,
+        active: true
+      },
+      dropdown: [
+        {
+          id: 1,
+          value: "0x0591c3661c044427fBA199124cBEB745116432D8",
+          balance: 23.5,
+          active: true
+        },
+        {
+          id: 2,
+          value: "0x0591c3661c044427fBA199124cBEB745116432D7",
+          balance: 0,
+          active: false
+        },
+        {
+          id: 3,
+          value: "0x0591c3661c044427fBA199124cBEB745116432D6",
+          balance: 12,
+          active: false
+        }
+      ]
+    },
+
+    button: [
+      { id: 1, label: "Proceed", type: "primary" },
+      { id: 2, label: "Cancel", type: "secondary" }
+    ],
+    step: "none",
+    uploadProcess: {
+      connectToMetaMask: "pending",
+      confirmationPayment: "pending",
+      confirmationGas: "pending",
+      uploading: "pending"
+    },
+    file: {}
+  };
 
   str2ab = str => {
     const buf = new ArrayBuffer(str.length);
@@ -70,101 +148,6 @@ class App extends Component {
     );
   };
 
-  deriveEncryptionSecretKey = async () => {
-    let cryptoParams = this.state.cryptoParams;
-    let getSecretKey = await this.importSecretKey();
-
-    return window.crypto.subtle.deriveKey(
-      {
-        name: cryptoParams.algoName1,
-        salt: cryptoParams.salt,
-        iterations: cryptoParams.itr,
-        hash: {
-          name: cryptoParams.hash
-        }
-      },
-      getSecretKey,
-      { name: cryptoParams.algoName2, length: cryptoParams.algoLength },
-      false,
-      cryptoParams.perms2
-    );
-  };
-
-  encryption = async file => {
-    const cryptoParams = this.state.cryptoParams;
-    const scope = this;
-    const derivedKey = await this.deriveEncryptionSecretKey();
-    const reader = new FileReader();
-
-    reader.onload = async () => {
-      const iv = window.crypto.getRandomValues(new Uint8Array(16));
-      const content = new Uint8Array(reader.result);
-
-      await window.crypto.subtle
-        .encrypt(
-          {
-            iv,
-            name: "AES-GCM"
-          },
-          derivedKey,
-          content
-        )
-        .then(function(encrypted) {
-          let encryptData = [iv, cryptoParams.salt, new Uint8Array(encrypted)];
-          scope.setState({
-            encryptFile: {
-              name: "Encrypted-" + file.name,
-              data: encryptData
-            }
-          });
-
-          // console.log(scope.state.encryptFile);
-        })
-        .catch(function(err) {
-          console.log(err);
-        });
-    };
-
-    reader.readAsArrayBuffer(file);
-  };
-
-  componentDidMount = async () => {
-    try {
-      // Geting network provider and web3 instance.
-      const web3 = await getWeb3();
-
-      // Using web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
-
-      // Geting the contract instance.
-      const networkId = await web3.eth.net.getId();
-      const deployedNetwork = SolidityDriveContract.networks[networkId];
-      const instance = new web3.eth.Contract(
-        SolidityDriveContract.abi,
-        deployedNetwork && deployedNetwork.address
-      );
-
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.getFiles);
-      web3.currentProvider.publicConfigStore.on("update", async () => {
-        const changedAccounts = await web3.eth.getAccounts();
-
-        this.setState({ accounts: changedAccounts });
-        console.log(this.state.accounts[0]);
-
-        const { accounts, contract } = this.state;
-
-        this.getFiles();
-      });
-    } catch (error) {
-      // Catch any errors for any of the above operations.
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`
-      );
-      console.error(error);
-    }
-  };
   //Function to get files of the selected account
   getFiles = async () => {
     try {
@@ -185,7 +168,6 @@ class App extends Component {
       console.log(error);
     }
   };
-
   //Function to store files in the ipfs
   onDrop = async file => {
     var result = "";
@@ -256,6 +238,63 @@ class App extends Component {
     }
   };
 
+  deriveEncryptionSecretKey = async () => {
+    let cryptoParams = this.state.cryptoParams;
+    let getSecretKey = await this.importSecretKey();
+
+    return window.crypto.subtle.deriveKey(
+      {
+        name: cryptoParams.algoName1,
+        salt: cryptoParams.salt,
+        iterations: cryptoParams.itr,
+        hash: {
+          name: cryptoParams.hash
+        }
+      },
+      getSecretKey,
+      { name: cryptoParams.algoName2, length: cryptoParams.algoLength },
+      false,
+      cryptoParams.perms2
+    );
+  };
+
+  componentDidMount = async () => {
+    try {
+      // Geting network provider and web3 instance.
+      const web3 = await getWeb3();
+
+      // Using web3 to get the user's accounts.
+      const accounts = await web3.eth.getAccounts();
+
+      // Geting the contract instance.
+      const networkId = await web3.eth.net.getId();
+      const deployedNetwork = SolidityDriveContract.networks[networkId];
+      const instance = new web3.eth.Contract(
+        SolidityDriveContract.abi,
+        deployedNetwork && deployedNetwork.address
+      );
+
+      // Set web3, accounts, and contract to the state, and then proceed with an
+      // example of interacting with the contract's methods.
+      this.setState({ web3, accounts, contract: instance }, this.getFiles);
+      web3.currentProvider.publicConfigStore.on("update", async () => {
+        const changedAccounts = await web3.eth.getAccounts();
+
+        this.setState({ accounts: changedAccounts });
+        console.log(this.state.accounts[0]);
+
+        const { accounts, contract } = this.state;
+
+        this.getFiles();
+      });
+    } catch (error) {
+      // Catch any errors for any of the above operations.
+      alert(
+        `Failed to load web3, accounts, or contract. Check console for details.`
+      );
+      console.error(error);
+    }
+  };
   deriveDecryptionSecretKey = async salt => {
     let cryptoParams = this.state.cryptoParams;
     let getSecretKey = await this.importSecretKey();
@@ -346,83 +385,229 @@ class App extends Component {
     });
   };
 
-  handleOnFileClick = () => {};
+  handleTabImgBtnClick = event => {
+    event.persist();
+    let tabBtn = this.state.tabBtn;
 
-  //UI of the app
-  render() {
-    const { solidityDrive } = this.state;
-    if (!this.state.web3) {
-      return <div>Loading Web3, accounts, and contract...</div>;
+    tabBtn = tabBtn.map(button => {
+      if (
+        (button.name === event.target.name && button.active === false) ||
+        (button.name === event.target.name && button.active === true)
+      ) {
+        button.active = true;
+      } else {
+        button.active = false;
+      }
+      return button;
+    });
+
+    this.setState({
+      tabBtn
+    });
+  };
+
+  getContent = () => {
+    const activeBtn = this.state.tabBtn.filter(
+      button => button.active === true
+    );
+    if (activeBtn[0].name === "file") {
+      return <FileSection handleFileChange={this.handleFileChange} />;
+    } else if (activeBtn[0].name === "wallet") {
+      return <TransactionSection />;
+    } else if (activeBtn[0].name === "feedback") {
+      return <FeedbackSection />;
     }
+  };
+
+  handleMetaMaskConnection = () => {
+    let uploadProcess = this.state.uploadProcess;
+    uploadProcess.connectToMetaMask = "complete";
+    uploadProcess.confirmationPayment = "process";
+
+    console.log("Connectiong to MetaMask is done successfully");
+
+    this.setState({
+      uploadProcess
+    });
+  };
+
+  handleFilePayment = () => {
+    let uploadProcess = this.state.uploadProcess;
+    uploadProcess.confirmationPayment = "complete";
+    uploadProcess.confirmationGas = "process";
+
+    console.log("File payment is done successfully");
+
+    this.setState({
+      uploadProcess
+    });
+  };
+  handleGasPayment = () => {
+    let uploadProcess = this.state.uploadProcess;
+    uploadProcess.confirmationGas = "complete";
+    uploadProcess.uploading = "process";
+
+    console.log("Gas payment is done successfully");
+
+    this.setState({
+      uploadProcess
+    });
+  };
+  handleFileUpload = () => {
+    let uploadProcess = this.state.uploadProcess;
+    uploadProcess.uploading = "complete";
+
+    console.log("File is uploaded successfully");
+
+    this.setState({
+      uploadProcess
+    });
+  };
+
+  handelFileEncryption = () => {
+    let step = this.state.step;
+    step = "processing";
+
+    let uploadProcess = this.state.uploadProcess;
+    uploadProcess.connectToMetaMask = "process";
+
+    console.log("Encryption is done successfully");
+
+    this.setState({
+      uploadProcess,
+      step
+    });
+  };
+
+  toggleDropdownMenu = () => {
+    let dropdownMenu = this.state.dropdownMenu;
+    dropdownMenu.dropdownActive = dropdownMenu.dropdownActive ? false : true;
+    this.setState({ dropdownMenu });
+  };
+
+  handleDropdownItemClick = clickItem => {
+    const scope = this;
+    let dropdownMenu = this.state.dropdownMenu;
+    dropdownMenu.dropdown.map(dropdown => {
+      if (
+        (dropdown.value === clickItem.value && !dropdown.active) ||
+        (dropdown.value === clickItem.value && dropdown.active)
+      ) {
+        dropdown.active = true;
+        dropdownMenu.selectedAcc = clickItem;
+      } else {
+        dropdown.active = false;
+      }
+      return dropdown;
+    });
+
+    setTimeout(() => {
+      scope.toggleDropdownMenu();
+    }, 100);
+
+    this.setState({ dropdownMenu });
+  };
+
+  handleFileChange = event => {
+    if (event.target.files.length > 0) {
+      let step = this.state.step;
+      step = "transaction";
+
+      const nBytes = event.target.files[0].size,
+        file = {};
+      let fileSize = nBytes + " bytes";
+
+      file.netpayable = 0.000000005 * nBytes + 0.006;
+      file.amount = 0.000000005 * nBytes;
+
+      const decimalCount = file.netpayable.toString().split(".")[1].length;
+
+      if (decimalCount > 10) {
+        const splitFees = file.netpayable.toString().split(".");
+        file.netpayable = parseFloat(
+          String(splitFees[0] + "." + splitFees[1].substring(0, 10))
+        );
+      }
+
+      file.size = " (" + fileSize + ")";
+
+      const fileExt = event.target.files[0].name.split(".");
+
+      for (
+        let sizes = ["KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+          index = 0,
+          approx = nBytes / 1024;
+        approx > 1;
+        approx /= 1024, index++
+      ) {
+        fileSize = approx.toFixed(2) + " " + sizes[index];
+      }
+
+      file.name = fileExt[0];
+      file.size = fileSize + file.size;
+      file.type = fileExt[fileExt.length - 1];
+      file.data = event.target.files[0];
+
+      this.setState({
+        file,
+        step
+      });
+    }
+  };
+
+  handlePopupClose = () => {
+    let step = this.state.step;
+    step = "none";
+
+    let file = this.state.file;
+    file = {};
+
+    this.setState({ step, file });
+  };
+
+  getPopup = () => {
+    const step = this.state.step;
+    if (step === "none") {
+      return null;
+    } else if (step === "transaction") {
+      return (
+        <Popup
+          step={this.state.step}
+          file={this.state.file}
+          dropdownMenu={this.state.dropdownMenu}
+          toggleDropdownMenu={this.toggleDropdownMenu}
+          handleDropdownItemClick={this.handleDropdownItemClick}
+          handleFileChange={this.handleFileChange}
+          button={this.state.button}
+          handlePopupProceed={this.handelFileEncryption}
+          handlePopupClose={this.handlePopupClose}
+        />
+      );
+    } else if (step === "processing") {
+      return (
+        <Popup
+          step={this.state.step}
+          uploadProcess={this.state.uploadProcess}
+          handleMetaMaskConnection={this.handleMetaMaskConnection}
+          handleFilePayment={this.handleFilePayment}
+          handleGasPayment={this.handleGasPayment}
+          handleFileUpload={this.handleFileUpload}
+          // handlePopupClose={this.handlePopupClose}
+        />
+      );
+    }
+  };
+  render() {
     return (
       <div className="App">
-        <div className="container pt-3">
-          <StyledDropZone onDrop={this.onDrop} />
-          <Table>
-            <thead>
-              <tr>
-                <th width="7%" scope="row">
-                  Type
-                </th>
-                <th className="text-left">File Name</th>
-                <th className="text-right">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {solidityDrive !== []
-                ? solidityDrive.map((item, key) => (
-                    <tr
-                      onClick={() => {
-                        const scope = this;
-                        var config = {
-                          headers: {
-                            "Content-Type": "application/octet-stream"
-                          },
-                          responseType: "blob"
-                        };
-                        axios
-                          .get(
-                            "http://localhost:8080/ipfs/" + String(item[0]),
-                            config
-                          )
-                          .then(response => {
-                            const file = {
-                              name: item[1],
-                              data: response.data
-                            };
-
-                            scope.decryption(file);
-                            // console.log(response.data);
-                            // FileDownload(response.data, item[1]);
-                          });
-                      }}
-                    >
-                      <th>
-                        <FileIcon
-                          size={30}
-                          extension={item[2]}
-                          {...defaultStyles[item[2]]}
-                        />
-                      </th>
-                      <th className="text-left">{item[1]}</th>
-                      <th className="text-right">
-                        <Moment format="YYYY/MM/DD" unix>
-                          {item[3]}
-                        </Moment>
-                      </th>
-                    </tr>
-                  ))
-                : null}
-            </tbody>
-          </Table>
-
-          <button onClick={this.getFund}>Get Funds</button>
-        </div>
+        <Sidebar
+          tabBtn={this.state.tabBtn}
+          handleTabImgBtnClick={this.handleTabImgBtnClick}
+        />
+        <div className="content-section">{this.getContent()}</div>
+        {this.getPopup()}
       </div>
-    
-   
-                      
-   );
+    );
   }
 }
 

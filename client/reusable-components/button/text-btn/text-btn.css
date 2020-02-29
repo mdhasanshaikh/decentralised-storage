@@ -1,0 +1,33 @@
+.primary-btn,
+.secondary-btn,
+.text-btn {
+  padding: 0px 16px;
+  width: auto;
+  height: 36px;
+  font-size: 14px;
+  font-weight: normal;
+  letter-spacing: 1.05px;
+  font-family: Nunito-Semibold;
+  outline: none;
+  cursor: pointer;
+  /* text-transform: uppercase; */
+  float: left;
+}
+.primary-btn {
+  color: #fff;
+  background-color: #112d4e;
+  border-radius: 18px;
+  transition: all 0.25s;
+}
+.primary-btn:hover {
+  box-shadow: 0 2px 4px 0 rgba(17, 45, 78, 0.33);
+}
+.secondary-btn {
+  color: #112d4e;
+  background-color: transparent;
+  border-radius: 18px;
+  border: 1px inset #112d4e;
+}
+/* .text-btn{
+
+} */

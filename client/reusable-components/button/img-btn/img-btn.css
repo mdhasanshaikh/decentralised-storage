@@ -1,0 +1,17 @@
+.img-btn {
+  padding: 0;
+  height: 24px;
+  width: 24px;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  cursor: pointer;
+  float: right;
+  align-self: center;
+  overflow: visible;
+}
+.img-btn img {
+  width: inherit;
+  height: inherit;
+  cursor: pointer;
+}

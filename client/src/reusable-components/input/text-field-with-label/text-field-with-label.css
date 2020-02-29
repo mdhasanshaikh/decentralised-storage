@@ -1,0 +1,74 @@
+.text-field,
+.text-field-update {
+  margin: 24px 0px 0px;
+  position: relative;
+  height: 40px;
+}
+.text-field input,
+.text-field-update input {
+  padding: 0px 12px;
+  width: calc(100% - 24px);
+  height: inherit;
+  font-family: Roboto;
+  font-size: 16px;
+  outline: none;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  transition: 0.5s;
+  background-color: transparent;
+}
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+.text-field label,
+.text-field-update label {
+  position: relative;
+  padding: 0px 4px;
+  top: -30px;
+  left: 10px;
+  background-color: #222831;
+  font-family: Roboto;
+  font-size: 16px;
+  pointer-events: none;
+  transition: 0.5s;
+}
+.text-field label {
+  color: #979797;
+}
+.text-field-update label {
+  color: #68cc4f;
+}
+
+.text-field input:focus,
+.text-field input:valid {
+  border: 1px solid rgba(255, 255, 255, 1);
+}
+
+.text-field-update input:focus,
+.text-field-update input:valid {
+  border-color: #68cc4f;
+}
+.text-field input:focus ~ label,
+.text-field input:valid ~ label {
+  width: auto !important;
+  height: auto;
+  top: -54px;
+  left: 8px;
+  color: #fff;
+  font-size: 12px;
+}
+.text-field-update input:focus ~ label,
+.text-field-update input:valid ~ label {
+  width: auto !important;
+  height: auto;
+  top: -54px;
+  left: 8px;
+  color: #68cc4f;
+  font-size: 12px;
+}

@@ -1,0 +1,23 @@
+.tab-bar {
+  width: inherit;
+  height: 48px;
+  float: left;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+.tab-bar .tab,
+.tab-bar .tab-active {
+  width: 100%;
+  height: inherit;
+  font-size: 14px;
+  font-family: Nunito-Semibold;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+.tab-bar .tab-active {
+  color: #112d4e;
+  border-bottom: 2px solid #112d4e;
+}

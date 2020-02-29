@@ -1,0 +1,40 @@
+.tab-img-btn,
+.tab-img-btn-active {
+  padding: 0px;
+  margin: 0px;
+  width: inherit;
+  height: inherit;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  display: flex;
+  float: left;
+}
+.tab-img-btn img,
+.tab-img-btn-active img {
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  float: left;
+}
+.tab-img-btn-active img {
+  margin: 8px 28px;
+  position: absolute;
+}
+.tab-img-btn-active::before {
+  content: "";
+  width: 64px;
+  height: 40px;
+  background-color: #dbe2ef;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  animation: tabBtnActive 0.5s ease forwards;
+}
+@keyframes tabBtnActive {
+  from {
+    margin-left: -64px;
+  }
+  to {
+    margin-left: 0px;
+  }
+}
