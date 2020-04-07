@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import "./sidebar.css";
 
-import logoIcon from "../asserts/side-bar/logo.png";
-import userIcon from "../asserts/side-bar/user-icon.png";
+import logoIcon from "../../asserts/side-bar/logo.png";
+import userIcon from "../../asserts/side-bar/user-icon.png";
 
 import TabImgBtn from "../reusable-components/button/tab-img-btn/tab-img-btn"
 
 class Sidebar extends Component {
-  state = {};
+  state = {
+    
+  };
 
   render() {
     return (

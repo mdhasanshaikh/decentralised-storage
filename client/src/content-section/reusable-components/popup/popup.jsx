@@ -4,24 +4,35 @@ import "./popup.css";
 import DropdownMenu from "../input/dropdown-menu/dropdown-menu";
 import TextBtn from "../button/text-btn/text-btn";
 
-import successIcon from "../../asserts/success-icon-green.png";
+import successIcon from "../../../asserts/success-icon-green.png";
 
 class Popup extends Component {
   state = {};
+
+  componentWillMount = () => {
+    if (this.props.step === "processing") {
+      console.log("heloo");
+    }
+
+    // if (this.props.step === "processing") {
+    //   if (this.props.uploadProcess.connectToMetaMask === "process") {
+    //     await this.props.handleMetaMaskConnection();
+    //   } else if (this.props.uploadProcess.confirmationPayment === "process") {
+    //     await this.props.handleFileUpload();
+    //   } else if (this.props.uploadProcess.confirmationGas === "process") {
+    //     await this.props.handleFileUpload();
+    //   } else if (this.props.uploadProcess.uploading === "process") {
+    //     await this.props.handleFileUpload();
+    //   } else {
+    //     console.log("done");
+    //   }
+    // }
+  };
 
   getCurentStatus = (processName, status) => {
     if (status === "pending") {
       return <div className="in-process">Waiting</div>;
     } else if (status === "process") {
-      if (processName === "connect metamask") {
-        this.props.handleMetaMaskConnection();
-      } else if (processName === "file payment") {
-        this.props.handleFilePayment();
-      } else if (processName === "gas payment") {
-        this.props.handleGasPayment();
-      } else if (processName === "file upload") {
-        this.props.handleFileUpload();
-      }
       return <div className="in-process">In Transit</div>;
     } else if (status === "complete") {
       return (
@@ -29,19 +40,19 @@ class Popup extends Component {
           <img src={successIcon} alt="complete" />
         </div>
       );
-    } else if (status === "fail") {
+    } else {
       return (
         <div>
           <button
             onClick={() => {
-              if (processName === "file payment") {
+              if (processName === "connect metamask") {
                 this.props.handleMetaMaskConnection();
               } else if (processName === "file payment") {
                 this.props.handleFilePayment();
-              } else if (processName === "gas payment") {
-                this.props.handleGasPayment();
               } else if (processName === "file upload") {
                 this.props.handleFileUpload();
+              } else if (processName === "gas payment") {
+                this.props.handleGasPayment();
               }
             }}>
             Retry
@@ -125,9 +136,8 @@ class Popup extends Component {
             </div>
           </div>
           <div className="button-section">
-            {this.props.button.map(button => {
+            {this.props.button.map((button) => {
               if (button.label === "Proceed") {
-                console.log(button);
                 return (
                   <TextBtn
                     button={button}
@@ -149,6 +159,7 @@ class Popup extends Component {
         </div>
       );
     } else if (step === "processing") {
+      // setTimeout(this.checkProps(), 500);
       return (
         <div className="process-section">
           <div className="row-title">
@@ -170,6 +181,13 @@ class Popup extends Component {
             )}
           </div>
           <div className="row-item">
+            <div>Uploading your File</div>
+            {this.getCurentStatus(
+              "file upload",
+              this.props.uploadProcess.uploading
+            )}
+          </div>
+          <div className="row-item">
             <div>
               Confirmation of Charges on MetaMask to store the transaction
               details
@@ -179,17 +197,11 @@ class Popup extends Component {
               this.props.uploadProcess.confirmationGas
             )}
           </div>
-          <div className="row-item">
-            <div>Uploading your File</div>
-            {this.getCurentStatus(
-              "file upload",
-              this.props.uploadProcess.uploading
-            )}
-          </div>
         </div>
       );
     }
   };
+
   getPopupboxTitle = () => {
     const step = this.props.step;
     if (step === "transaction") {
@@ -198,6 +210,7 @@ class Popup extends Component {
       return "Uploading the File";
     }
   };
+
   render() {
     return (
       <div className="popup">

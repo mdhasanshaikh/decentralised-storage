@@ -1,0 +1,149 @@
+.transaction-section {
+  width: inherit;
+  height: inherit;
+  float: left;
+  overflow: hidden;
+}
+.transaction-section .top-section {
+  margin: 0px 16px;
+  padding: 24px 8px 16px;
+  width: calc(100% - 48px);
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.24);
+  float: left;
+}
+.transaction-section .top-section .title {
+  font-family: Arial-Black;
+  font-size: 32px;
+  line-height: 45px;
+}
+.transaction-section .top-section .tool-section {
+  width: auto;
+  height: auto;
+  float: right;
+}
+.transaction-section .middle-section {
+  padding: 16px 0px;
+  margin: 0px 16px;
+  width: calc(100% - 32px);
+  height: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1.25fr) 2fr;
+  border-bottom: 1px inset rgba(0, 0, 0, 0.24);
+  float: left;
+}
+.transaction-section .middle-section .content-box {
+  padding: 8px 16px;
+  width: calc(100% - 32px);
+  height: auto;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  float: left;
+}
+.transaction-section .middle-section .content-box:first-child {
+  padding: 8px;
+  width: calc(100% - 16px);
+}
+.transaction-section .middle-section .content-box:last-child {
+  border: none;
+}
+.transaction-section .middle-section .content-box .value-text {
+  width: 100%;
+  color: rgba(0, 0, 0, 0.85);
+  font-family: Nunito-Bold;
+  font-size: 32px;
+  float: left;
+}
+.transaction-section .middle-section .content-box .value-text span {
+  margin-left: 6px;
+  font-family: Nunito-Semibold;
+  font-size: 16px;
+}
+.transaction-section .middle-section .content-box .descript-text {
+  width: 100%;
+  color: #979797;
+  font-family: Nunito-Semibold;
+  font-size: 16px;
+  float: left;
+}
+.transaction-section .content-section {
+  margin: 0px 16px;
+  width: calc(100% - 32px);
+  height: calc(100% - 202px);
+  float: left;
+}
+.transaction-section .content-section .top-section {
+  margin: 0;
+  padding: 16px 8px 16px 0;
+  width: calc(100% - 8px);
+  float: left;
+}
+.transaction-section .content-section .top-section .tab-holder {
+  width: 344px;
+}
+.transaction-section .content-section .top-section .tab-bar {
+  border-bottom: none;
+}
+.transaction-section .content-section .top-section .tab-bar .tab,
+.transaction-section .content-section .top-section .tab-bar .tab-active {
+  height: 64px;
+  font-size: 16px;
+}
+.transaction-section .content-section .table-section {
+  width: 100%;
+  height: calc(100% - 80px);
+  float: left;
+  overflow-y: scroll;
+}
+.transaction-section .content-section .table-section .row-title,
+.transaction-section .content-section .table-section .row-item {
+  padding: 0px 8px;
+  width: calc(100% - 16px);
+  display: grid;
+  grid-template-columns: 2fr 0.35fr;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  float: left;
+}
+.transaction-section .content-section .table-section .row-title {
+  height: 48px;
+}
+.transaction-section .content-section .table-section .row-item {
+  height: 80px;
+}
+.transaction-section .content-section .table-section .row-title .left-side,
+.transaction-section .content-section .table-section .row-title .right-side {
+  width: inherit;
+  height: inherit;
+  display: flex;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  font-family: Nunito-Semibold;
+}
+.transaction-section .content-section .table-section .row-item .left-side,
+.transaction-section .content-section .table-section .row-item .right-side {
+  width: inherit;
+  height: inherit;
+  display: grid;
+  grid-template-rows: 27px 19px;
+  align-content: center;
+}
+.transaction-section .content-section .table-section .row-item .txn-id,
+.transaction-section .content-section .table-section .row-item .amt {
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 20px;
+  font-family: Nunito-Semibold;
+}
+.transaction-section .content-section .table-section .row-item .amt span {
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  font-family: Nunito;
+}
+.transaction-section .content-section .table-section .row-item .normal-text {
+  color: #979797;
+  font-size: 14px;
+  font-family: Nunito;
+}

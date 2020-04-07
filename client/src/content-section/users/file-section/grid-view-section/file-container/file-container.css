@@ -47,3 +47,28 @@
 .file-container-active .detail .title {
   color: #112d4e;
 }
+.file-more-option {
+  padding: 8px 0px;
+  width: 200px;
+  height: 80px;
+  position: absolute;
+  transform: translate(75%, -65%);
+  display: grid;
+  grid-template-rows: repeat(2, 40px);
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px 0 rgba(92, 99, 105, 0.15);
+}
+.file-more-option div {
+  padding-left: 16px;
+  width: calc(100% - 16px);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: rgba(0, 0, 0, 0, 85);
+}
+.file-more-option div:hover {
+  color: #112d4e;
+  background-color: #dbe2ef;
+}

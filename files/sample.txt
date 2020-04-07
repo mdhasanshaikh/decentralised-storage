@@ -1,0 +1,6 @@
+First, let’s make a server using node and express to serve a pdf file.
+Create a folder called server and inside that folder “run npm” init to create package.json file.
+Then let’s install basic dependencies needed by running command
+npm install express cors
+cors package is used here to avoid cors related errors
+Then create a file called app.js and keep it blank for now.

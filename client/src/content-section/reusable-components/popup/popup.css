@@ -2,7 +2,6 @@
   width: calc(100vw - 200px);
   height: 100vh;
   position: absolute;
-
   float: left;
 }
 .background-blur {
@@ -22,7 +21,7 @@
   border-radius: 4px;
   transform: translate(-50%, -50%);
   background-color: #fff;
-  box-shadow: 0 4px 8px rgba(92, 99, 105, 0.15);
+  box-shadow: 0 4px 8px rgba(106, 113, 119, 0.15);
   float: left;
 }
 .popup-box .top-section {

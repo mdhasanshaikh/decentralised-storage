@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./file-section.css";
-import TextField from "../../reusable-components/input/text-field/text-field";
+import TextField from "../../content-section/reusable-components/input/text-field/text-field";
 
 import searchIcon from "../../asserts/search-icon-grey.png";
 import gridViewIconGrey from "../../asserts/grid-view-icon-grey.png";
@@ -10,7 +10,7 @@ import listViewIconWhite from "../../asserts/list-view-icon-white.png";
 
 import closeIcon from "../../asserts/close-icon.png";
 
-import ImgBtn from "../../reusable-components/button/img-btn/img-btn";
+import ImgBtn from "../../content-section/reusable-components/button/img-btn/img-btn";
 import GridViewSection from "./grid-view-section/grid-view-section";
 import ListViewSection from "./list-view-section/list-view-section";
 import FileDetailsSection from "./file-details-section/file-details-section";
@@ -278,6 +278,7 @@ class FileSection extends Component {
                 handleCloseBtnClick={this.handleCloseBtnClick}
               />
             )}
+
           </div>
         </div>
       </div>

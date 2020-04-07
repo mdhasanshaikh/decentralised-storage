@@ -40,3 +40,6 @@
   width: 100%;
   height: calc(100% - 48px);
 }
+.list-view-section .add-file-btn {
+  bottom: 24px;
+}

@@ -1,0 +1,54 @@
+// Create new patient 
+DatabaseReference patientRef = FirebaseDatabase.getInstance().getReference("patients");
+
+patientRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    @Override
+    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        childCount = (int) dataSnapshot.getChildrenCount();
+        Log.d("children count: ",String.valueOf(childCount));
+        if(!dataSnapshot.child(pid).exists()){
+            User user = new User(pid, name, email, pswd, "", "", "", "", null, null,true,true,true);
+            userNameRef.child(pid).setValue(user);
+            
+        } else {
+            Toast.makeText(getApplicationContext(), "Enter pid is already registered.\nPlease go to log-in", Toast.LENGTH_SHORT).show();
+            Log.d("Already user: ", pid);
+        }
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+    }
+});
+
+// Getting patient data 
+final String patient = "hello@gmail.com"
+DatabaseReference patientRef = FirebaseDatabase.getInstance().getReference("patients");
+ Query query = patientRef.orderByChild("email").equalTo(email);
+
+query.addListenerForSingleValueEvent(new ValueEventListener() {
+    @Override
+    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        if (dataSnapshot.exists()) {
+            // dataSnapshot is the "issue" node with all children with id 0
+
+            for (DataSnapshot user : dataSnapshot.getChildren()) {
+                // do something with the individual "issues"
+
+                User existingUser = user.getValue(User.class);
+
+                // whatever you would like to log/display to terminal
+                Log.d(existingUser.name);
+            }
+
+        } else {
+            Toast.makeText(getApplicationContext(), "Oops, Entered user is not register yet.\nPlease do sign-up first", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+    }
+});

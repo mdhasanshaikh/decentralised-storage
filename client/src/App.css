@@ -1,7 +1,7 @@
 .App {
-  padding: 0px 100px;
-  margin: 0px;
-  width: calc(100vw - 200px);
+  margin: 0rem;
+  padding: 0rem calc(calc(100vw - 1200px) / 2);
+  width: 1200px;
   height: 100vh;
   display: grid;
   grid-template-columns: 80px auto;
@@ -13,4 +13,150 @@
   float: left;
   background-color: #fff;
 }
+nav {
+  padding: 1rem calc(calc(100vw - 1200px) / 2);
+  width: 1200px;
+  height: auto;
+  position: fixed;
+  top: 0rem;
+  left: 0rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+nav .logo,
+nav button {
+  padding: 0.5rem 2.5rem;
+  width: auto;
+  height: auto;
+  font-size: 1rem;
+  color: #112d4e;
+  font-family: OpenSans-Bold;
+  text-transform: uppercase;
+  border: 1px solid #112d4e;
+  border-radius: 0.25rem;
+}
 
+nav button {
+  border: none;
+  background-color: #dbe2ef;
+  cursor: pointer;
+}
+.modal-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  float: left;
+}
+.modal-container .background-blur {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  float: left;
+}
+.modal-container .modal {
+  padding: 3rem 2rem 4rem;
+  width: 24rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 4px;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(92, 99, 105, 0.15);
+  float: left;
+  opacity: 0;
+  animation: modalMoveIn 0.5s ease-out forwards;
+}
+@keyframes modalMoveIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -55%);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+.modal-container .title,
+.modal-container .title-ul {
+  margin: 0rem 0rem 1.25rem;
+  width: 100%;
+  height: auto;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 3rem;
+  font-family: Arial-Black;
+  font-weight: normal;
+  float: left;
+}
+.modal-container .title-ul {
+  padding: 0rem 0rem 1rem;
+  margin: 0rem 0rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+.modal-container .sub-title {
+  margin: 0rem 0rem 4rem;
+  width: 100%;
+  height: auto;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  font-family: OpenSans;
+  font-weight: normal;
+  float: left;
+}
+.modal-container .content-section {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  float: left;
+}
+.modal-container .content-section .metamask-logo {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  float: left;
+}
+.modal-container .content-section .metamask-logo img {
+  width: 10rem;
+  height: auto;
+  float: left;
+}
+.modal-container .content-section .metamask-logo div {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  font-family: Arial;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #989c9e;
+  float: left;
+}
+.modal-container .content-section button {
+  margin-top: 3rem;
+  padding: 0.6rem 4rem;
+  width: 12rem;
+  height: auto;
+  color: #fff;
+  font-size: 1rem;
+  font-family: Nunito-Semibold;
+  border: none;
+  outline: none;
+  border-radius: 0.25rem;
+  background-color: #112d4e;
+  cursor: pointer;
+}

@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import "./dropdown-menu.css";
 
-import dropdownIcon from "../../../asserts/dropdown-icon.png";
+import dropdownIcon from "../../../../asserts/dropdown-icon.png";
 
 class DropdownMenu extends Component {
   state = {};
 
-  getDropdownClasses = state => {
+  getDropdownClasses = (state) => {
     if (state) {
       return "dropdown-item-active";
     } else {
@@ -21,7 +21,7 @@ class DropdownMenu extends Component {
         <div className="dropdown-field">
           <input
             type="text"
-            onChange={value => console.log(value)}
+            onChange={(value) => console.log(value)}
             onClick={this.props.toggleDropdownMenu}
             value={dropdownMenu.selectedAcc.value}
             name={dropdownMenu.name}
@@ -31,7 +31,7 @@ class DropdownMenu extends Component {
         </div>
         {!dropdownMenu.dropdownActive ? null : (
           <div className="dropdown">
-            {dropdownMenu.dropdown.map(dropdown => (
+            {dropdownMenu.dropdown.map((dropdown) => (
               <button
                 className={this.getDropdownClasses(dropdown.active)}
                 key={dropdown.id}
